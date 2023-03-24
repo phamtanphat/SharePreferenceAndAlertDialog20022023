@@ -3,14 +3,17 @@ package com.examp.sharepreferenceandalertdialog20022023
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.edit
+import androidx.core.view.isVisible
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,12 +23,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnLogin: Button
     private lateinit var tvOutput: TextView
     private lateinit var imgDelete: ImageView
+    private lateinit var viewGroupOutput: RelativeLayout
     private lateinit var sharedPreferences: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         initView()
+        displayOutput()
         eventView()
     }
 
@@ -50,21 +55,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveAccount(
-        email: String,
-        password: String,
-        isSaved: Boolean
-    ) {
-        if (isSaved) {
-            sharedPreferences.edit {
-                putString("email", email)
-                putString("password", password)
-                putBoolean("checked", true)
-                apply()
-            }
-        }
-    }
-
     private fun initView() {
         edtEmail = findViewById(R.id.edit_text_email)
         edtPassword = findViewById(R.id.edit_text_password)
@@ -72,7 +62,51 @@ class MainActivity : AppCompatActivity() {
         btnLogin = findViewById(R.id.button_login)
         tvOutput = findViewById(R.id.text_view_output)
         imgDelete = findViewById(R.id.image_view_delete)
+        viewGroupOutput = findViewById(R.id.relative_group_output)
 
         sharedPreferences = getSharedPreferences("App_cache", MODE_PRIVATE)
+    }
+
+    private fun saveAccount(
+        email: String,
+        password: String,
+        isRemember: Boolean
+    ) {
+        if (isRemember) {
+            sharedPreferences.edit {
+                putString("email", email)
+                putString("password", password)
+                putBoolean("checked", true)
+                apply()
+            }
+        } else {
+            sharedPreferences.edit().clear().apply()
+        }
+    }
+
+    private fun displayOutput() {
+        sharedPreferences.apply {
+            val email = getString("email", "")
+            val password = getString("password", "")
+            val isRemember = getBoolean("checked", false)
+
+            if (isRemember) {
+                viewGroupOutput.isVisible = true
+
+                val spanned = SpannableStringBuilder().apply {
+                    append("Email: $email")
+                    append("\n")
+                    append("Password: $password")
+                }
+
+                checkBoxRemember.isChecked = true
+                tvOutput.text = spanned
+                edtEmail.setText(email)
+                edtPassword.setText(password)
+            } else {
+                viewGroupOutput.isVisible = false
+                sharedPreferences.edit().clear().apply()
+            }
+        }
     }
 }
