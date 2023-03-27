@@ -1,18 +1,11 @@
 package com.examp.sharepreferenceandalertdialog20022023
 
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.SpannableStringBuilder
-import android.view.View
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.RelativeLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.view.isVisible
 
@@ -25,7 +18,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvOutput: TextView
     private lateinit var imgDelete: ImageView
     private lateinit var viewGroupOutput: RelativeLayout
-    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var sharePreferenceUtils: SharePreferenceUtils
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +59,11 @@ class MainActivity : AppCompatActivity() {
         alertDialogBuilder.setMessage("Bạn có muốn xóa dữ liệu?")
 
         alertDialogBuilder.setPositiveButton("Có") { dialog, positon ->
-
+            sharePreferenceUtils
+                .removeKey("email")
+                .removeKey("password")
+                .removeKey("checked")
+                .apply()
         }
 
         alertDialogBuilder.setNegativeButton("Không") { dialog, positon ->
@@ -85,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         imgDelete = findViewById(R.id.image_view_delete)
         viewGroupOutput = findViewById(R.id.relative_group_output)
 
-        sharedPreferences = getSharedPreferences("App_cache", MODE_PRIVATE)
+        sharePreferenceUtils = SharePreferenceUtils(this)
     }
 
     private fun saveAccount(
@@ -94,40 +91,38 @@ class MainActivity : AppCompatActivity() {
         isRemember: Boolean
     ) {
         if (isRemember) {
-            sharedPreferences.edit {
-                putString("email", email)
-                putString("password", password)
-                putBoolean("checked", true)
-                apply()
-            }
+            sharePreferenceUtils
+                .setStringValue("email", email)
+                .setStringValue("password", password)
+                .setBooleanValue("checked", true)
+                .apply()
+
         } else {
-            sharedPreferences.edit().clear().apply()
+            sharePreferenceUtils.clear()
         }
     }
 
     private fun displayOutput() {
-        sharedPreferences.apply {
-            val email = getString("email", "")
-            val password = getString("password", "")
-            val isRemember = getBoolean("checked", false)
+        val email = sharePreferenceUtils.getStringValue("email")
+        val password = sharePreferenceUtils.getStringValue("password")
+        val isRemember = sharePreferenceUtils.getBooleanValue("checked")
 
-            if (isRemember) {
-                viewGroupOutput.isVisible = true
+        if (isRemember) {
+            viewGroupOutput.isVisible = true
 
-                val spanned = SpannableStringBuilder().apply {
-                    append("Email: $email")
-                    append("\n")
-                    append("Password: $password")
-                }
-
-                checkBoxRemember.isChecked = true
-                tvOutput.text = spanned
-                edtEmail.setText(email)
-                edtPassword.setText(password)
-            } else {
-                viewGroupOutput.isVisible = false
-                sharedPreferences.edit().clear().apply()
+            val spanned = SpannableStringBuilder().apply {
+                append("Email: $email")
+                append("\n")
+                append("Password: $password")
             }
+
+            checkBoxRemember.isChecked = true
+            tvOutput.text = spanned
+            edtEmail.setText(email)
+            edtPassword.setText(password)
+        } else {
+            viewGroupOutput.isVisible = false
+            sharePreferenceUtils.clear()
         }
     }
 }
