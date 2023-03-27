@@ -12,6 +12,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.core.view.isVisible
 
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var imgDelete: ImageView
     private lateinit var viewGroupOutput: RelativeLayout
     private lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -36,7 +38,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun eventView() {
         btnLogin.setOnClickListener {
-
             val email = edtEmail.text.toString()
             val password = edtPassword.text.toString()
 
@@ -53,6 +54,26 @@ class MainActivity : AppCompatActivity() {
 
             Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
         }
+
+        imgDelete.setOnClickListener {
+            showDialogDelete()
+        }
+    }
+
+    private fun showDialogDelete() {
+        val alertDialogBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setTitle("Thông báo")
+        alertDialogBuilder.setMessage("Bạn có muốn xóa dữ liệu?")
+
+        alertDialogBuilder.setPositiveButton("Có") { dialog, positon ->
+
+        }
+
+        alertDialogBuilder.setNegativeButton("Không") { dialog, positon ->
+
+        }
+
+        alertDialogBuilder.show()
     }
 
     private fun initView() {
